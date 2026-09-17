@@ -130,6 +130,9 @@ usable day to day.
   them invisible against a black frame. `DeviceFrame` now sets the overlay style from
   `DeviceColorStyle.isDark`, which also fixes the navigation bar on the black, blue, green and
   brown frames.
+- **An Apps menu.** A new top-level entry lists every launchable app on the device, scrolled with
+  the click wheel and opened with the select button. Android only; other platforms show the empty
+  state.
 - **A `HOME` intent filter**, so the app can be selected as the device home screen. This does
   nothing until you pick it under *Settings → Apps → Default apps → Home app*, and you can switch
   back to your usual launcher there at any time.
@@ -140,7 +143,6 @@ usable day to day.
 
 ### Planned
 
-- An app drawer driven by the click wheel
 - Clock and timer screens
 - Contacts and dialling
 - Making the home screen render before the music library scan finishes

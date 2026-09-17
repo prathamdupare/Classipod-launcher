@@ -108,6 +108,10 @@
       }
     }
   },
+  "appsScreenTitle": "Apps",
+  "@appsScreenTitle": {
+    "description": "The title of the installed apps screen"
+  },
   "genresScreenTitle": "Genres",
   "@genresScreenTitle": {
     "description": "The title of the genres screen"
@@ -183,6 +187,10 @@
   "madeWithLoveTitle": "Made with ❤️ by",
   "@madeWithLoveTitle": {
     "description": "The title of the made with love section in the about screen"
+  },
+  "noAppsFound": "No Apps",
+  "@noAppsFound": {
+    "description": "The message displayed when no installed apps are found"
   },
   "noMusicFilesFound": "No Music",
   "@noMusicFilesFound": {
