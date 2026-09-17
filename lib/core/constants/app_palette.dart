@@ -14,6 +14,16 @@ class AppPalette {
     0xFF676467,
   );
 
+  static const Color oledDeviceFrameColor = Color(0xFF000000);
+  static const Color oledDeviceControlBackgroundColor = Color(0xFF000000);
+  static const Color oledDeviceControlBorderColor = Color(0xFF2A2A2C);
+  static const Color oledDeviceControlInnerButtonGradientColor1 = Color(
+    0xFF0D0D0D,
+  );
+  static const Color oledDeviceControlInnerButtonGradientColor2 = Color(
+    0xFF161617,
+  );
+
   static const Color lightDeviceFrameGradientColor1 = Color(0xFFF2F2F2);
   static const Color lightDeviceFrameGradientColor2 = Color(0xFFADADAD);
 

@@ -12,6 +12,17 @@ joy of navigating your music library with a touch of retro charm.
 
 </div>
 
+> ### 🍴 This is a fork
+>
+> This repository is a personal fork of
+> **[ClassiPod by Aditya R (@adeeteya)](https://github.com/adeeteya/Classipod)**. All of the
+> design, the click wheel, and effectively the entire app are their work — I am only adding a
+> few things on top for my own use. If you want ClassiPod itself, go to
+> [the original repository](https://github.com/adeeteya/Classipod); please star and support that
+> one rather than this fork.
+>
+> See [About this fork](#-about-this-fork) for what is different here.
+
 🧭 Intuitive Navigation: Navigate through your music library effortlessly using the virtual click
 wheel. Scroll, click, and feel the tactile response as you rediscover the joy of selecting your
 favorite tracks with the same ease as the original iPod.
@@ -102,7 +113,53 @@ by platform:
 - 🎮 Ipod Built-in Games
 - 📸 Ability to View Photos and Videos from the device
 
+## 🍴 About this fork
+
+The goal is to use ClassiPod as an **Android home screen**, not just a music player — keeping the
+click wheel as the way to drive the phone, and gradually adding the things that make a device
+usable day to day.
+
+### Changed so far
+
+- **`OLED Black` device colour is now genuinely black.** Upstream already had a pure black frame,
+  but the click wheel housing was `#212122` and the select button used a light grey gradient. The
+  wheel and button are now black too, with a faint `#2A2A2C` ring so the dial is still findable.
+- **The select button now honours `noiseOpacity`.** It previously painted the noise texture at
+  full opacity regardless of the device colour, so it could never render as true black.
+- **System bar icons follow the device colour.** They were pinned to dark globally, which made
+  them invisible against a black frame. `DeviceFrame` now sets the overlay style from
+  `DeviceColorStyle.isDark`, which also fixes the navigation bar on the black, blue, green and
+  brown frames.
+- **A `HOME` intent filter**, so the app can be selected as the device home screen. This does
+  nothing until you pick it under *Settings → Apps → Default apps → Home app*, and you can switch
+  back to your usual launcher there at any time.
+- **A `Build Debug APK` workflow** that produces an installable artifact on every push, so the app
+  can be built without a local Flutter toolchain.
+- **The Flutter version constraint is `>=3.44.7`** instead of pinned exactly, so the SDK bundled
+  with Android Studio works. CI still checks against 3.44.7.
+
+### Planned
+
+- An app drawer driven by the click wheel
+- Clock and timer screens
+- Contacts and dialling
+- Making the home screen render before the music library scan finishes
+
+### Building this fork
+
+```bash
+flutter pub get
+flutter gen-l10n
+flutter run --flavor dev
+```
+
+Or grab the APK from the **Actions** tab — every push builds a debug `dev`-flavour APK that
+installs alongside the real ClassiPod rather than replacing it.
+
 ## 💻 Installation links
+
+> The links below are for the **original** ClassiPod, not this fork.
+
 
 <table>
   <tr>
@@ -205,7 +262,11 @@ by platform:
 
 ## 🤓 Author
 
-**[Aditya R](https://github.com/adeeteya)**
+ClassiPod is created and maintained by **[Aditya R](https://github.com/adeeteya)**. Huge thanks to
+them for building it and for releasing it as open source — this fork exists only because that work
+was shared freely.
+
+This fork is maintained by **[Pratham Dupare](https://github.com/prathamdupare)**.
 
 ## 🔖 LICENCE
 

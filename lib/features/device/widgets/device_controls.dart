@@ -286,9 +286,10 @@ class _DeviceControlsState extends ConsumerState<DeviceControls> {
                             border: Border.all(
                               color: deviceColorStyle.controlBorderColor,
                             ),
-                            image: const DecorationImage(
-                              image: AssetImage(Assets.noiseImage),
+                            image: DecorationImage(
+                              image: const AssetImage(Assets.noiseImage),
                               fit: BoxFit.cover,
+                              opacity: deviceColorStyle.noiseOpacity,
                             ),
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,

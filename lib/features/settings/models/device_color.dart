@@ -141,13 +141,16 @@ enum DeviceColor {
       case DeviceColor.oledBlack:
         return const DeviceColorStyle(
           noiseOpacity: 0,
-          frameGradientColors: [CupertinoColors.black, CupertinoColors.black],
-          solidFrameColor: CupertinoColors.black,
-          controlBackgroundColor: AppPalette.darkDeviceControlBackgroundColor,
-          controlBorderColor: CupertinoColors.black,
+          frameGradientColors: [
+            AppPalette.oledDeviceFrameColor,
+            AppPalette.oledDeviceFrameColor,
+          ],
+          solidFrameColor: AppPalette.oledDeviceFrameColor,
+          controlBackgroundColor: AppPalette.oledDeviceControlBackgroundColor,
+          controlBorderColor: AppPalette.oledDeviceControlBorderColor,
           innerButtonGradientColors: [
-            AppPalette.darkDeviceControlInnerButtonGradientColor1,
-            AppPalette.darkDeviceControlInnerButtonGradientColor2,
+            AppPalette.oledDeviceControlInnerButtonGradientColor1,
+            AppPalette.oledDeviceControlInnerButtonGradientColor2,
           ],
           buttonAccentColor: CupertinoColors.white,
           buttonIconColor: CupertinoColors.white,
