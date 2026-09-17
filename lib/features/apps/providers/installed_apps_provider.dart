@@ -13,9 +13,7 @@ final installedAppsProvider = FutureProvider<List<AppInfo>>((ref) async {
   if (kIsWeb || !Platform.isAndroid) {
     return const [];
   }
-  final installedApps = await InstalledApps.getInstalledApps(
-    withIcon: false,
-  );
+  final installedApps = await InstalledApps.getInstalledApps();
   installedApps.sort(
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
   );

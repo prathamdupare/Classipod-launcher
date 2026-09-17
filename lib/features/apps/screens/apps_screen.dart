@@ -23,7 +23,7 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
 
   @override
   List<AppInfo> get displayItems =>
-      ref.read(installedAppsProvider).valueOrNull ?? const [];
+      ref.read(installedAppsProvider).value ?? const [];
 
   @override
   Future<void> onSelectPressed() => _launchApp(selectedDisplayItem);
