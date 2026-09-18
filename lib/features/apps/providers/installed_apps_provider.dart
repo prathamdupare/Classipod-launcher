@@ -13,7 +13,12 @@ final installedAppsProvider = FutureProvider<List<AppInfo>>((ref) async {
   if (kIsWeb || !Platform.isAndroid) {
     return const [];
   }
-  final installedApps = await InstalledApps.getInstalledApps();
+  // System apps have to be included or the launcher hides the phone, clock,
+  // camera and messaging apps. Non launchable packages stay excluded so the
+  // list is apps rather than every background service on the device.
+  final installedApps = await InstalledApps.getInstalledApps(
+    excludeSystemApps: false,
+  );
   installedApps.sort(
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
   );
