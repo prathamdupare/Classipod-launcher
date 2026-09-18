@@ -139,6 +139,9 @@ usable day to day.
 - **A `HOME` intent filter**, so the app can be selected as the device home screen. This does
   nothing until you pick it under *Settings → Apps → Default apps → Home app*, and you can switch
   back to your usual launcher there at any time.
+- **Per ABI debug APKs.** `ndk.abiFilters` was removed from `android/app/build.gradle.kts`
+  because Gradle rejects it alongside `--split-per-abi`. It only listed the three ABIs Flutter
+  builds by default, so nothing about which architectures ship has changed.
 - **A `Build Debug APK` workflow** that produces an installable artifact on every push, so the app
   can be built without a local Flutter toolchain.
 - **The Flutter version constraint is `>=3.44.7`** instead of pinned exactly, so the SDK bundled
