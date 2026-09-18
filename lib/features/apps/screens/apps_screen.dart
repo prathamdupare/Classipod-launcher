@@ -94,9 +94,7 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
     return CupertinoPageScaffold(
       child: Column(
         children: [
-          StatusBar(
-            title: _pinFeedbackTitle ?? Routes.apps.title(context),
-          ),
+          StatusBar(title: _pinFeedbackTitle ?? Routes.apps.title(context)),
           Expanded(
             child: installedApps.when(
               loading: () =>

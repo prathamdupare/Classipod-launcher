@@ -105,8 +105,7 @@ class _SplitScreenPlaceholderState extends ConsumerState<SplitScreenPlaceholder>
           titleText: context.localization.appsScreenTitle,
           icon: CupertinoIcons.square_grid_2x2,
           contentText:
-              ref.watch(installedAppsProvider).value?.length.toString() ??
-              "",
+              ref.watch(installedAppsProvider).value?.length.toString() ?? "",
         );
       } else if (splitScreenType == SplitScreenType.settings) {
         splitScreenWidget = const SettingsPreviewWidget();
