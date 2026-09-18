@@ -51,7 +51,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: classipod-debug-apk-${{ steps.vars.outputs.sha_short }}
-          path: build/app/outputs/flutter-apk/*.apk
+          # Only the arm64 split is uploaded; shipping all three ABIs made the
+          # artifact larger than the single fat APK it replaced.
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-dev-debug.apk
           if-no-files-found: error
           retention-days: 14
 
