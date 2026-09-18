@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:classipod/core/extensions/build_context_extensions.dart';
 import 'package:classipod/core/navigation/routes.dart';
 import 'package:classipod/core/widgets/display_list_tile.dart';
 import 'package:classipod/core/widgets/empty_state_widget.dart';
+import 'package:classipod/features/apps/controllers/pinned_apps_controller.dart';
 import 'package:classipod/features/apps/providers/installed_apps_provider.dart';
 import 'package:classipod/features/custom_screen_elements/custom_screen.dart';
 import 'package:classipod/features/status_bar/widgets/status_bar.dart';
@@ -28,6 +31,23 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
   @override
   Future<void> onSelectPressed() => _launchApp(selectedDisplayItem);
 
+  @override
+  void onSelectLongPress() {
+    unawaited(_togglePinned(selectedDisplayItem));
+  }
+
+  /// Long pressing select pins the app to the main menu, so it can be launched
+  /// without opening this screen, and long pressing again unpins it.
+  Future<void> _togglePinned(int index) async {
+    final installedApps = displayItems;
+    if (index < 0 || index >= installedApps.length) {
+      return;
+    }
+    await ref
+        .read(pinnedAppsControllerProvider.notifier)
+        .togglePinned(installedApps[index].packageName);
+  }
+
   Future<void> _launchApp(int index) async {
     final installedApps = displayItems;
     if (index < 0 || index >= installedApps.length) {
@@ -40,6 +60,7 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
   @override
   Widget build(BuildContext context) {
     final installedApps = ref.watch(installedAppsProvider);
+    final pinnedApps = ref.watch(pinnedAppsControllerProvider);
 
     return CupertinoPageScaffold(
       child: Column(
@@ -67,12 +88,19 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
                       text: '',
                       isSelected: false,
                     ),
-                    itemBuilder: (context, index) => DisplayListTile(
-                      key: ValueKey(apps[index].packageName),
-                      text: apps[index].name,
-                      isSelected: selectedDisplayItem == index,
-                      onTap: () async => _launchApp(index),
-                    ),
+                    itemBuilder: (context, index) {
+                      final isPinned = pinnedApps.contains(
+                        apps[index].packageName,
+                      );
+                      return DisplayListTile(
+                        key: ValueKey(apps[index].packageName),
+                        text: isPinned
+                            ? "${apps[index].name} •"
+                            : apps[index].name,
+                        isSelected: selectedDisplayItem == index,
+                        onTap: () async => _launchApp(index),
+                      );
+                    },
                   ),
                 );
               },

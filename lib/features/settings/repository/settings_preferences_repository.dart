@@ -106,12 +106,26 @@ class SettingsPreferencesRepository {
         false;
   }
 
+  List<String> getPinnedApps() {
+    return _sharedPreferencesWithCache.getStringList(
+          SharedPreferencesKeys.pinnedApps.name,
+        ) ??
+        const [];
+  }
+
   Future<void> setLanguageLocaleCode({
     required String languageLocaleCode,
   }) async {
     return _sharedPreferencesWithCache.setString(
       SharedPreferencesKeys.languageLocaleCode.name,
       languageLocaleCode,
+    );
+  }
+
+  Future<void> setPinnedApps({required List<String> packageNames}) async {
+    return _sharedPreferencesWithCache.setStringList(
+      SharedPreferencesKeys.pinnedApps.name,
+      packageNames,
     );
   }
 

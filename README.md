@@ -133,6 +133,9 @@ usable day to day.
 - **An Apps menu.** A new top-level entry lists every launchable app on the device, scrolled with
   the click wheel and opened with the select button. Android only; other platforms show the empty
   state.
+- **Pin apps to the main menu.** Long press select on any app in the Apps list to promote it onto
+  the main menu, so launching it is one scroll and one press instead of descending into Apps
+  first. Pinned apps are marked with a dot and persist across restarts.
 - **A `HOME` intent filter**, so the app can be selected as the device home screen. This does
   nothing until you pick it under *Settings → Apps → Default apps → Home app*, and you can switch
   back to your usual launcher there at any time.

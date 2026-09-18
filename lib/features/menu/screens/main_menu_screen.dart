@@ -1,40 +1,19 @@
 import 'dart:async';
 
-import 'package:classipod/core/extensions/build_context_extensions.dart';
 import 'package:classipod/core/navigation/routes.dart';
 import 'package:classipod/core/services/audio_player_service.dart';
 import 'package:classipod/core/widgets/display_list_tile.dart';
 import 'package:classipod/features/custom_screen_elements/custom_screen.dart';
 import 'package:classipod/features/menu/controller/split_screen_controller.dart';
+import 'package:classipod/features/menu/models/main_menu_entry.dart';
 import 'package:classipod/features/menu/models/split_screen_type.dart';
+import 'package:classipod/features/menu/providers/main_menu_entries_provider.dart';
 import 'package:classipod/features/status_bar/widgets/status_bar.dart';
 import 'package:classipod/features/tutorial/controller/tutorial_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-enum _MainMenuDisplayItems {
-  music,
-  apps,
-  settings,
-  shuffleSongs,
-  nowPlaying;
-
-  String title(BuildContext context) {
-    switch (this) {
-      case music:
-        return context.localization.musicMenuScreenTitle;
-      case apps:
-        return context.localization.appsScreenTitle;
-      case settings:
-        return context.localization.settingsScreenTitle;
-      case shuffleSongs:
-        return context.localization.shuffleSongsMenuTitle;
-      case nowPlaying:
-        return context.localization.nowPlayingScreenTitle;
-    }
-  }
-}
+import 'package:installed_apps/installed_apps.dart';
 
 class MainMenuScreen extends ConsumerStatefulWidget {
   final bool showTutorial;
@@ -51,7 +30,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen>
   String get routeName => Routes.menu.name;
 
   @override
-  List<_MainMenuDisplayItems> get displayItems => _MainMenuDisplayItems.values;
+  List<MainMenuEntry> get displayItems => ref.read(mainMenuEntriesProvider);
 
   @override
   void onMenuButtonPressed() {
@@ -59,25 +38,39 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen>
   }
 
   @override
-  Future<void> onSelectPressed() =>
-      _navigateToScreen(_MainMenuDisplayItems.values[selectedDisplayItem]);
+  Future<void> onSelectPressed() async {
+    final menuEntries = displayItems;
+    if (selectedDisplayItem >= menuEntries.length) {
+      return;
+    }
+    await _selectEntry(menuEntries[selectedDisplayItem]);
+  }
 
-  Future<void> _navigateToScreen(_MainMenuDisplayItems menuItem) async {
-    setState(() => selectedDisplayItem = displayItems.indexOf(menuItem));
-    switch (menuItem) {
-      case _MainMenuDisplayItems.music:
+  Future<void> _selectEntry(MainMenuEntry menuEntry) async {
+    setState(() => selectedDisplayItem = displayItems.indexOf(menuEntry));
+    switch (menuEntry) {
+      case PinnedAppEntry(appInfo: final appInfo):
+        await InstalledApps.startApp(appInfo.packageName);
+      case MainMenuActionEntry():
+        await _runAction(menuEntry.action);
+    }
+  }
+
+  Future<void> _runAction(MainMenuAction action) async {
+    switch (action) {
+      case MainMenuAction.music:
         context.goNamed(Routes.musicMenu.name);
         break;
-      case _MainMenuDisplayItems.nowPlaying:
-        await _navigateToNowPlayingScreen();
-        break;
-      case _MainMenuDisplayItems.apps:
+      case MainMenuAction.apps:
         context.goNamed(Routes.apps.name);
         break;
-      case _MainMenuDisplayItems.settings:
+      case MainMenuAction.nowPlaying:
+        await _navigateToNowPlayingScreen();
+        break;
+      case MainMenuAction.settings:
         context.goNamed(Routes.settings.name);
         break;
-      case _MainMenuDisplayItems.shuffleSongs:
+      case MainMenuAction.shuffleSongs:
         await ref.read(audioPlayerServiceProvider.notifier).shuffleAllSongs();
         await _navigateToNowPlayingScreen();
         break;
@@ -92,27 +85,40 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen>
 
   Future<void> _changeSplitScreenType() async {
     await Future.delayed(const Duration(milliseconds: 150));
-    switch (displayItems[selectedDisplayItem]) {
-      case _MainMenuDisplayItems.music:
-        ref.read(splitScreenControllerProvider.notifier).changeSplitScreenType =
-            SplitScreenType.albumArt;
-        break;
-      case _MainMenuDisplayItems.apps:
-        ref.read(splitScreenControllerProvider.notifier).changeSplitScreenType =
-            SplitScreenType.apps;
-        break;
-      case _MainMenuDisplayItems.settings:
-        ref.read(splitScreenControllerProvider.notifier).changeSplitScreenType =
-            SplitScreenType.settings;
-        break;
-      case _MainMenuDisplayItems.shuffleSongs:
-        ref.read(splitScreenControllerProvider.notifier).changeSplitScreenType =
-            SplitScreenType.shuffle;
-        break;
-      case _MainMenuDisplayItems.nowPlaying:
-        ref.read(splitScreenControllerProvider.notifier).changeSplitScreenType =
-            SplitScreenType.nowPlaying;
-        break;
+    final menuEntries = displayItems;
+    if (selectedDisplayItem >= menuEntries.length) {
+      return;
+    }
+    final splitScreenController = ref.read(
+      splitScreenControllerProvider.notifier,
+    );
+    switch (menuEntries[selectedDisplayItem]) {
+      // A pinned app reuses the Apps preview rather than carrying its own
+      // split screen state.
+      case PinnedAppEntry():
+        splitScreenController.changeSplitScreenType = SplitScreenType.apps;
+      case MainMenuActionEntry(action: final action):
+        switch (action) {
+          case MainMenuAction.music:
+            splitScreenController.changeSplitScreenType =
+                SplitScreenType.albumArt;
+            break;
+          case MainMenuAction.apps:
+            splitScreenController.changeSplitScreenType = SplitScreenType.apps;
+            break;
+          case MainMenuAction.settings:
+            splitScreenController.changeSplitScreenType =
+                SplitScreenType.settings;
+            break;
+          case MainMenuAction.shuffleSongs:
+            splitScreenController.changeSplitScreenType =
+                SplitScreenType.shuffle;
+            break;
+          case MainMenuAction.nowPlaying:
+            splitScreenController.changeSplitScreenType =
+                SplitScreenType.nowPlaying;
+            break;
+        }
     }
   }
 
@@ -134,6 +140,13 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen>
 
   @override
   Widget build(BuildContext context) {
+    final menuEntries = ref.watch(mainMenuEntriesProvider);
+
+    // Unpinning an app shortens the list, so keep the highlight in range.
+    if (selectedDisplayItem >= menuEntries.length) {
+      selectedDisplayItem = menuEntries.length - 1;
+    }
+
     unawaited(_changeSplitScreenType());
     if (!ref.read(splitScreenViewControllerProvider).isScreenVisible) {
       unawaited(ref.read(splitScreenViewControllerProvider).openSplitView());
@@ -148,17 +161,17 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen>
               controller: scrollController,
               child: ListView.builder(
                 controller: scrollController,
-                itemCount: displayItems.length,
+                itemCount: menuEntries.length,
                 prototypeItem: const DisplayListTile(
                   text: '',
                   isSelected: false,
                 ),
                 itemBuilder: (context, index) {
                   return DisplayListTile(
-                    key: ValueKey(displayItems[index]),
-                    text: displayItems[index].title(context),
+                    key: ValueKey(menuEntries[index]),
+                    text: menuEntries[index].title(context),
                     isSelected: selectedDisplayItem == index,
-                    onTap: () async => _navigateToScreen(displayItems[index]),
+                    onTap: () async => _selectEntry(menuEntries[index]),
                   );
                 },
               ),
