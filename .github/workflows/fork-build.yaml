@@ -38,12 +38,23 @@ jobs:
       - name: Run tests
         run: flutter test --no-pub
 
-      - name: Build debug APK
-        run: flutter build apk --debug --flavor dev
+      - name: Compute short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
+      # Split per ABI so the artifact is a third of the size; your phone needs
+      # the arm64-v8a one.
+      - name: Build debug APK
+        run: flutter build apk --debug --flavor dev --split-per-abi
+
+      # The SHA is in the name so a stale download is obvious at a glance.
       - uses: actions/upload-artifact@v4
         with:
-          name: classipod-debug-apk
+          name: classipod-debug-apk-${{ steps.vars.outputs.sha_short }}
           path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
           retention-days: 14
+
+      # Runs after the upload so a formatting nit still leaves a usable APK.
+      - name: Check formatting
+        run: dart format --set-exit-if-changed lib/ test/

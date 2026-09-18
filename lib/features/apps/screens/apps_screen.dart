@@ -21,6 +21,11 @@ class AppsScreen extends ConsumerStatefulWidget {
 }
 
 class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
+  /// Briefly replaces the status bar title to acknowledge a pin or unpin,
+  /// since the row marker alone is easy to miss in a long list.
+  String? _pinFeedbackTitle;
+  Timer? _pinFeedbackTimer;
+
   @override
   String get routeName => Routes.apps.name;
 
@@ -43,9 +48,33 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
     if (index < 0 || index >= installedApps.length) {
       return;
     }
-    await ref
+    final isNowPinned = await ref
         .read(pinnedAppsControllerProvider.notifier)
         .togglePinned(installedApps[index].packageName);
+    if (!mounted) {
+      return;
+    }
+    _showPinFeedback(
+      isNowPinned
+          ? context.localization.appPinnedMessage
+          : context.localization.appUnpinnedMessage,
+    );
+  }
+
+  void _showPinFeedback(String message) {
+    _pinFeedbackTimer?.cancel();
+    setState(() => _pinFeedbackTitle = message);
+    _pinFeedbackTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (mounted) {
+        setState(() => _pinFeedbackTitle = null);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pinFeedbackTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _launchApp(int index) async {
@@ -65,7 +94,9 @@ class _AppsScreenState extends ConsumerState<AppsScreen> with CustomScreen {
     return CupertinoPageScaffold(
       child: Column(
         children: [
-          StatusBar(title: Routes.apps.title(context)),
+          StatusBar(
+            title: _pinFeedbackTitle ?? Routes.apps.title(context),
+          ),
           Expanded(
             child: installedApps.when(
               loading: () =>

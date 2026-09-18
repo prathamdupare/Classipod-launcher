@@ -112,6 +112,14 @@
   "@appsScreenTitle": {
     "description": "The title of the installed apps screen"
   },
+  "appPinnedMessage": "Pinned",
+  "@appPinnedMessage": {
+    "description": "Shown when an app is pinned to the main menu"
+  },
+  "appUnpinnedMessage": "Unpinned",
+  "@appUnpinnedMessage": {
+    "description": "Shown when an app is removed from the main menu"
+  },
   "genresScreenTitle": "Genres",
   "@genresScreenTitle": {
     "description": "The title of the genres screen"
